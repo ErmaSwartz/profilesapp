@@ -5,6 +5,7 @@ import {
   Flex,
   Grid,
   Divider,
+  Text,
 } from "@aws-amplify/ui-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
@@ -12,9 +13,8 @@ import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
 import { parseCSV } from "./utils/csvutils";
-import { cleanData } from "./utils/cleanData"; // Import the cleanData function
-import { joinData } from "./utils/joinData"; // Import the joinData function
-
+import { cleanData } from "./utils/cleanData";
+import { joinData } from "./utils/joinData";
 
 Amplify.configure(outputs);
 
@@ -26,6 +26,8 @@ export default function App() {
   const [userprofiles, setUserProfiles] = useState([]);
   const [file1Data, setFile1Data] = useState(null);
   const [file2Data, setFile2Data] = useState(null);
+  const [joinedData, setJoinedData] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
   const { signOut } = useAuthenticator((context) => [context.user]);
 
   useEffect(() => {
@@ -54,18 +56,11 @@ export default function App() {
 
   function handleJoinAndCleanData() {
     if (file1Data && file2Data) {
-      const joinedData = joinData(file1Data, file2Data);
-      const cleanedData = cleanData(joinedData);
-      console.log("Cleaned and Joined Data: ", cleanedData);
-      setUserProfiles(cleanedData);
-    }
-  }
-
-  function handleCleanData() {
-    if (userprofiles.length > 0) {
-      const cleanedData = cleanData(userprofiles);
-      console.log("Cleaned Data: ", cleanedData);
-      setUserProfiles(cleanedData);
+      const joined = joinData(file1Data, file2Data);
+      const cleaned = cleanData(joined);
+      console.log("Cleaned and Joined Data: ", cleaned);
+      setJoinedData(cleaned.slice(0, 10)); // Save the top 10 rows for display
+      setSuccessMessage("Data successfully cleaned and joined");
     }
   }
 
@@ -83,30 +78,7 @@ export default function App() {
 
       <Divider />
 
-      <Grid
-        margin="3rem 0"
-        autoFlow="column"
-        justifyContent="center"
-        gap="2rem"
-        alignContent="center"
-      >
-        {userprofiles.map((userprofile) => (
-          <Flex
-            key={userprofile.id || userprofile.email}
-            direction="column"
-            justifyContent="center"
-            alignItems="center"
-            gap="2rem"
-            border="1px solid #ccc"
-            padding="2rem"
-            borderRadius="5%"
-            className="box"
-          >
-            {/* Additional content for each profile could go here */}
-          </Flex>
-        ))}
-      </Grid>
-
+      {/* Upload Data Section */}
       <input
         type="file"
         accept=".csv"
@@ -121,8 +93,49 @@ export default function App() {
       />
       <Button>Upload NGP Data</Button>
 
+      <Divider />
+
+      {/* Join and Clean Data Section */}
       <Button onClick={handleJoinAndCleanData}>Join and Clean Data</Button>
-      <Button onClick={handleCleanData}>Clean Data</Button>
+
+      <Divider />
+
+      {/* Display Success Message */}
+      {successMessage && (
+        <Text variation="success" margin="1rem 0">
+          {successMessage}
+        </Text>
+      )}
+
+      {/* Display Top 10 Joined and Cleaned Data */}
+      {joinedData && (
+        <Grid
+          margin="3rem 0"
+          autoFlow="row"
+          gap="0.5rem"
+          alignContent="center"
+        >
+          {joinedData.map((row, index) => (
+            <Flex
+              key={index}
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              gap="1rem"
+              border="1px solid #ccc"
+              padding="1rem"
+              borderRadius="5%"
+            >
+              {Object.values(row).map((value, i) => (
+                <Text key={i}>{value}</Text>
+              ))}
+            </Flex>
+          ))}
+        </Grid>
+      )}
+
+      <Divider />
+
       <Button onClick={signOut}>Sign Out</Button>
     </Flex>
   );

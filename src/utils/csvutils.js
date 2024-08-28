@@ -1,63 +1,24 @@
 /**
- * Joins two datasets based on a common column ('VANID').
- * @param {Array} Email_ngp_df - The first dataset (array of objects, typically from the Email NGP data).
- * @param {Array} activist_code_df - The second dataset (array of objects, typically from the Activist Code data).
- * @returns {Array|String} - The joined dataset or an error message if any of the datasets are empty.
+ * Parses a CSV string into an array of objects.
+ * @param {string} csvContent - The CSV content as a string.
+ * @returns {Array<Object>} - Parsed CSV data as an array of objects.
  */
-export function joinData(Email_ngp_df, activist_code_df) {
-    // Check if both datasets are empty
-    if (Email_ngp_df.length === 0 && activist_code_df.length === 0) {
-      return 'Please select Email data and Activist data';
-    }
-    // Check if either dataset is empty
-    if (Email_ngp_df.length === 0) {
-      return 'Please select Email data';
-    }
-    if (activist_code_df.length === 0) {
-      return 'Please select Activist data';
-    }
+export function parseCSV(csvContent) {
+    // Split the CSV content into lines and filter out any empty lines.
+    const lines = csvContent.split("\n").filter(line => line.trim() !== "");
+    
+    // Extract the headers (column names) from the first line of the CSV.
+    const headers = lines[0].split(",").map(header => header.trim());
   
-    // Merge the two datasets based on the 'VANID' column
-    const joinedData = mergeDataFrames(Email_ngp_df, activist_code_df, "VANID");
-  
-    // Return the joined data to be used in the state or further processing
-    return joinedData;
-  }
-  
-  /**
-   * Function to merge two datasets based on a common column
-   * @param {Array} df1 - The first dataset (array of objects)
-   * @param {Array} df2 - The second dataset (array of objects)
-   * @param {String} key - The common column to merge on
-   * @returns {Array} - The merged dataset
-   */
-  function mergeDataFrames(df1, df2, key) {
-    const merged = [];
-  
-    // Convert the second dataset into a map for fast lookup
-    const df2Map = df2.reduce((map, row) => {
-      map[row[key]] = row;
-      return map;
-    }, {});
-  
-    // Loop through the first dataset and merge with the corresponding row in the second dataset
-    df1.forEach(row1 => {
-      const match = df2Map[row1[key]];
-      if (match) {
-        // If a match is found, merge the objects
-        merged.push({ ...row1, ...match });
-      } else {
-        // If no match is found, just add the row from the first dataset
-        merged.push({ ...row1 });
-      }
+    // Map over the remaining lines (data rows), split each line by commas to get individual values,
+    // and then create an object for each row using the headers as keys.
+    return lines.slice(1).map(line => {
+      const values = line.split(",").map(value => value.trim()); // Split the line into values and trim whitespace.
+      
+      // Use reduce to create an object where each key is a header and each value is the corresponding data.
+      return headers.reduce((acc, header, index) => {
+        acc[header] = values[index]; // Assign the value to the corresponding header key.
+        return acc; // Return the accumulated object.
+      }, {}); // Start with an empty object.
     });
-  
-    // Handle any remaining rows in the second dataset that don't have a match in the first
-    df2.forEach(row2 => {
-      if (!df1.find(row1 => row1[key] === row2[key])) {
-        merged.push({ ...row2 });
-      }
-    });
-  
-    return merged;
-  }
+}

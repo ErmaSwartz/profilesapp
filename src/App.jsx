@@ -1,12 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Heading,
-  Flex,
-  Grid,
-  Divider,
-  Text,
-} from "@aws-amplify/ui-react";
+import { Button, Heading, Flex, Divider, Text, View } from "@aws-amplify/ui-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
@@ -26,8 +19,9 @@ export default function App() {
   const [userprofiles, setUserProfiles] = useState([]);
   const [file1Data, setFile1Data] = useState(null);
   const [file2Data, setFile2Data] = useState(null);
+  const [filesUploaded, setFilesUploaded] = useState(false);
+  const [dataCleaned, setDataCleaned] = useState(false);
   const [joinedData, setJoinedData] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
   const { signOut } = useAuthenticator((context) => [context.user]);
 
   useEffect(() => {
@@ -49,18 +43,31 @@ export default function App() {
       const data = parseCSV(fileContent);
       console.log("Parsed CSV Data: ", data);
       setFileData(data);
+      if (file1Data && file2Data) {
+        setFilesUploaded(true);
+      }
     };
 
     reader.readAsText(file);
   }
 
-  function handleJoinAndCleanData() {
+  function handleCleanData() {
     if (file1Data && file2Data) {
-      const joined = joinData(file1Data, file2Data);
-      const cleaned = cleanData(joined);
-      console.log("Cleaned and Joined Data: ", cleaned);
-      setJoinedData(cleaned.slice(0, 10)); // Save the top 10 rows for display
-      setSuccessMessage("Data successfully cleaned and joined");
+      const cleanedFile1 = cleanData(file1Data);
+      const cleanedFile2 = cleanData(file2Data);
+      setFile1Data(cleanedFile1);
+      setFile2Data(cleanedFile2);
+      setDataCleaned(true);
+      console.log("Cleaned Data 1: ", cleanedFile1);
+      console.log("Cleaned Data 2: ", cleanedFile2);
+    }
+  }
+
+  function handleJoinData() {
+    if (file1Data && file2Data && dataCleaned) {
+      const joinedData = joinData(file1Data, file2Data);
+      console.log("Cleaned and Joined Data: ", joinedData);
+      setJoinedData(joinedData.slice(0, 10)); // Display top 10 rows
     }
   }
 
@@ -70,73 +77,63 @@ export default function App() {
       justifyContent="center"
       alignItems="center"
       direction="column"
-      width="70%"
+      width="80%"
       margin="0 auto"
+      padding="2rem"
+      backgroundColor="#f4f4f4"
+      borderRadius="8px"
+      boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
     >
-      <Heading level={1}>Clean and Join Data</Heading>
-      <Heading level={2}>Mandate Media Acquisition App</Heading>
+      <Heading level={1}>Mandate Media Acquisition</Heading>
+      <Text fontSize="large" color="#666">
+        Upload NGP and ActBlue Files Here
+      </Text>
 
-      <Divider />
+      <Divider margin="2rem 0" />
 
-      {/* Upload Data Section */}
-      <input
-        type="file"
-        accept=".csv"
-        onChange={(e) => handleFileChange(e, setFile1Data)}
-      />
-      <Button>Upload ActBlue Data</Button>
+      <Flex direction="row" justifyContent="space-around" width="100%">
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileChange(e, setFile1Data)}
+        />
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileChange(e, setFile2Data)}
+        />
+      </Flex>
 
-      <input
-        type="file"
-        accept=".csv"
-        onChange={(e) => handleFileChange(e, setFile2Data)}
-      />
-      <Button>Upload NGP Data</Button>
+      {filesUploaded && <Text color="green">Files Uploaded</Text>}
 
-      <Divider />
+      <Divider margin="2rem 0" />
 
-      {/* Join and Clean Data Section */}
-      <Button onClick={handleJoinAndCleanData}>Join and Clean Data</Button>
+      <Button onClick={handleCleanData} isDisabled={!filesUploaded}>
+        Clean Data
+      </Button>
 
-      <Divider />
+      {dataCleaned && <Text color="green">Data Cleaned</Text>}
 
-      {/* Display Success Message */}
-      {successMessage && (
-        <Text variation="success" margin="1rem 0">
-          {successMessage}
-        </Text>
-      )}
+      <Button onClick={handleJoinData} isDisabled={!dataCleaned}>
+        Join Data
+      </Button>
 
-      {/* Display Top 10 Joined and Cleaned Data */}
       {joinedData && (
-        <Grid
-          margin="3rem 0"
-          autoFlow="row"
-          gap="0.5rem"
-          alignContent="center"
-        >
-          {joinedData.map((row, index) => (
-            <Flex
-              key={index}
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              gap="1rem"
-              border="1px solid #ccc"
-              padding="1rem"
-              borderRadius="5%"
-            >
-              {Object.values(row).map((value, i) => (
-                <Text key={i}>{value}</Text>
-              ))}
-            </Flex>
-          ))}
-        </Grid>
+        <>
+          <Text color="green">Data successfully cleaned and joined</Text>
+          <View>
+            {joinedData.map((row, index) => (
+              <Text key={index}>{JSON.stringify(row)}</Text>
+            ))}
+          </View>
+        </>
       )}
 
-      <Divider />
+      <Divider margin="2rem 0" />
 
-      <Button onClick={signOut}>Sign Out</Button>
+      <Button onClick={() => console.log('Redirecting to next page...')}>
+        Next
+      </Button>
     </Flex>
   );
 }

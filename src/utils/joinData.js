@@ -1,4 +1,10 @@
-function joinData(Email_ngp_df, activist_code_df) {
+/**
+ * Function to join two datasets based on the 'VANID' column.
+ * @param {Array} Email_ngp_df - The first dataset (array of objects)
+ * @param {Array} activist_code_df - The second dataset (array of objects)
+ * @returns {Array} - The joined dataset
+ */
+export function joinData(Email_ngp_df, activist_code_df) {
     // Check if both datasets are empty
     if (Email_ngp_df.length === 0 && activist_code_df.length === 0) {
       return 'Please select Email data and Activist data';

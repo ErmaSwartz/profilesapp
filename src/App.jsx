@@ -14,7 +14,7 @@ import outputs from "../amplify_outputs.json";
 import { parseCSV } from "./utils/csvutils";
 import { cleanData } from "./utils/cleanData"; // Import the cleanData function
 import { joinData } from "./utils/joinData"; // Import the joinData function
-import { parseCSV } from "./utils/csvutils";
+
 
 Amplify.configure(outputs);
 

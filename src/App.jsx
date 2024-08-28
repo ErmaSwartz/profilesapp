@@ -43,9 +43,8 @@ export default function App() {
       const data = parseCSV(fileContent);
       console.log("Parsed CSV Data: ", data);
       setFileData(data);
-      if (file1Data && file2Data) {
-        setFilesUploaded(true);
-      }
+      // Update filesUploaded state if both files are uploaded
+      setFilesUploaded(file1Data && file2Data);
     };
 
     reader.readAsText(file);
@@ -84,8 +83,8 @@ export default function App() {
       borderRadius="8px"
       boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
     >
-      <Heading level={1}>Mandate Media Acquisition</Heading>
-      <Text fontSize="large" color="#666">
+      <Heading level={1} color="black">Mandate Media Acquisition</Heading>
+      <Text fontSize="large" color="black">
         Upload NGP and ActBlue Files Here
       </Text>
 
@@ -104,7 +103,7 @@ export default function App() {
         />
       </Flex>
 
-      {filesUploaded && <Text color="green">Files Uploaded</Text>}
+      {filesUploaded && <Text color="black">Files Uploaded</Text>}
 
       <Divider margin="2rem 0" />
 
@@ -112,7 +111,7 @@ export default function App() {
         Clean Data
       </Button>
 
-      {dataCleaned && <Text color="green">Data Cleaned</Text>}
+      {dataCleaned && <Text color="black">Data Cleaned</Text>}
 
       <Button onClick={handleJoinData} isDisabled={!dataCleaned}>
         Join Data
@@ -120,10 +119,10 @@ export default function App() {
 
       {joinedData && (
         <>
-          <Text color="green">Data successfully cleaned and joined</Text>
+          <Text color="black">Data successfully cleaned and joined</Text>
           <View>
             {joinedData.map((row, index) => (
-              <Text key={index}>{JSON.stringify(row)}</Text>
+              <Text key={index} color="black">{JSON.stringify(row)}</Text>
             ))}
           </View>
         </>

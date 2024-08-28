@@ -1,10 +1,4 @@
-/**
- * Joins two datasets based on a common column ('VANID').
- * @param {Array} Email_ngp_df - The first dataset (array of objects, typically from the Email NGP data).
- * @param {Array} activist_code_df - The second dataset (array of objects, typically from the Activist Code data).
- * @returns {Array|String} - The joined dataset or an error message if any of the datasets are empty.
- */
-export function joinData(Email_ngp_df, activist_code_df) {
+function joinData(Email_ngp_df, activist_code_df) {
     // Check if both datasets are empty
     if (Email_ngp_df.length === 0 && activist_code_df.length === 0) {
       return 'Please select Email data and Activist data';
@@ -20,7 +14,8 @@ export function joinData(Email_ngp_df, activist_code_df) {
     // Merge the two datasets based on the 'VANID' column
     const joinedData = mergeDataFrames(Email_ngp_df, activist_code_df, "VANID");
   
-    // Return the joined data to be used in the state or further processing
+    // Since we are in a React environment, instead of saving to a file,
+    // return the joined data to be used in the state or further processing.
     return joinedData;
   }
   

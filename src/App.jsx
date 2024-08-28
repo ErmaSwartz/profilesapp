@@ -3,7 +3,6 @@ import {
   Button,
   Heading,
   Flex,
-  View,
   Grid,
   Divider,
 } from "@aws-amplify/ui-react";
@@ -12,13 +11,12 @@ import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
-import { parseCSV } from "./utils/csvutils"; // Import parseCSV
-
-/**
- * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
- */
+import { parseCSV } from "./utils/csvutils";
+import { cleanData } from "./utils/cleanData"; // Import the cleanData function
+import { joinData } from "./utils/joinData"; // Import the joinData function
 
 Amplify.configure(outputs);
+
 const client = generateClient({
   authMode: "userPool",
 });
@@ -35,7 +33,7 @@ export default function App() {
 
   async function fetchUserProfile() {
     const { data: profiles } = await client.models.UserProfile.list();
-    console.log('Fetched Profiles: ', profiles); // Debugging line
+    console.log("Fetched Profiles: ", profiles);
     setUserProfiles(profiles);
   }
 
@@ -46,23 +44,26 @@ export default function App() {
     reader.onload = (e) => {
       const fileContent = e.target.result;
       const data = parseCSV(fileContent);
-      console.log('Parsed CSV Data: ', data); // Debugging line
+      console.log("Parsed CSV Data: ", data);
       setFileData(data);
     };
 
     reader.readAsText(file);
   }
 
-  function joinAndCleanData() {
+  function handleJoinAndCleanData() {
     if (file1Data && file2Data) {
-      const joinedData = file1Data.map((row1) => {
-        const match = file2Data.find((row2) => row2.VANID === row1.VANID);
-        return match ? { ...row1, ...match } : row1;
-      });
-      console.log('Joined Data: ', joinedData); // Debugging line
-
+      const joinedData = joinData(file1Data, file2Data);
       const cleanedData = cleanData(joinedData);
-      console.log('Cleaned Data: ', cleanedData); // Debugging line
+      console.log("Cleaned and Joined Data: ", cleanedData);
+      setUserProfiles(cleanedData);
+    }
+  }
+
+  function handleCleanData() {
+    if (userprofiles.length > 0) {
+      const cleanedData = cleanData(userprofiles);
+      console.log("Cleaned Data: ", cleanedData);
       setUserProfiles(cleanedData);
     }
   }
@@ -77,7 +78,7 @@ export default function App() {
       margin="0 auto"
     >
       <Heading level={1}>Clean and Join Data</Heading>
-      <Heading level={2}>Mandate Media Aqcuisition App</Heading>
+      <Heading level={2}>Mandate Media Acquisition App</Heading>
 
       <Divider />
 
@@ -100,9 +101,7 @@ export default function App() {
             borderRadius="5%"
             className="box"
           >
-            <View>
-              {/* <Heading level="3">{userprofile.email}</Heading> */}
-            </View>
+            {/* Additional content for each profile could go here */}
           </Flex>
         ))}
       </Grid>
@@ -112,12 +111,17 @@ export default function App() {
         accept=".csv"
         onChange={(e) => handleFileChange(e, setFile1Data)}
       />
+      <Button>Upload ActBlue Data</Button>
+
       <input
         type="file"
         accept=".csv"
         onChange={(e) => handleFileChange(e, setFile2Data)}
       />
-      <Button onClick={joinAndCleanData}>Join and Clean Data</Button>
+      <Button>Upload NGP Data</Button>
+
+      <Button onClick={handleJoinAndCleanData}>Join and Clean Data</Button>
+      <Button onClick={handleCleanData}>Clean Data</Button>
       <Button onClick={signOut}>Sign Out</Button>
     </Flex>
   );

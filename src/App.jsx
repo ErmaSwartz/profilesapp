@@ -33,6 +33,7 @@ export default function App() {
 
   async function fetchUserProfile() {
     const { data: profiles } = await client.models.UserProfile.list();
+    console.log('Fetched Profiles: ', profiles); // Debugging line
     setUserProfiles(profiles);
   }
 
@@ -43,66 +44,11 @@ export default function App() {
     reader.onload = (e) => {
       const fileContent = e.target.result;
       const data = parseCSV(fileContent);
+      console.log('Parsed CSV Data: ', data); // Debugging line
       setFileData(data);
     };
 
     reader.readAsText(file);
-  }
-
-  function parseCSV(data) {
-    const rows = data.split("\n");
-    const headers = rows[0].split(",");
-    const result = rows.slice(1).map((row) => {
-      const values = row.split(",");
-      return headers.reduce((acc, header, index) => {
-        acc[header] = values[index];
-        return acc;
-      }, {});
-    });
-    return result;
-  }
-
-  function cleanData(data) {
-    // Handle missing values
-    data.forEach((row) => {
-      for (const key in row) {
-        if (row[key] === "" || row[key] === null || row[key] === undefined) {
-          // Check if value is a number or string
-          if (!isNaN(row[key])) {
-            // Replace with mean if it's a number
-            const mean =
-              data.reduce((sum, row) => sum + parseFloat(row[key] || 0), 0) /
-              data.length;
-            row[key] = mean;
-          } else {
-            // Replace with an arbitrary word if it's a string
-            row[key] = "N/A";
-          }
-        }
-      }
-    });
-
-    // Standardize data types
-    data.forEach((row) => {
-      for (const key in row) {
-        if (typeof row[key] === "string") {
-          row[key] = row[key].toLowerCase().trim();
-        }
-      }
-    });
-
-    // Correct inconsistent formatting (assuming there's a 'Date' column)
-    data.forEach((row) => {
-      if (row.Date) {
-        const date = new Date(row.Date);
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        row.Date = `${day}/${month}/${year}`;
-      }
-    });
-
-    return data;
   }
 
   function joinAndCleanData() {
@@ -111,9 +57,10 @@ export default function App() {
         const match = file2Data.find((row2) => row2.VANID === row1.VANID);
         return match ? { ...row1, ...match } : row1;
       });
+      console.log('Joined Data: ', joinedData); // Debugging line
 
       const cleanedData = cleanData(joinedData);
-      console.log("Cleaned Data: ", cleanedData);
+      console.log('Cleaned Data: ', cleanedData); // Debugging line
       setUserProfiles(cleanedData);
     }
   }

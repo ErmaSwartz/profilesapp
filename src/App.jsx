@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Heading, Flex, Divider, Text, View } from "@aws-amplify/ui-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
+import { useHistory } from 'react-router-dom'; // Import useHistory
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
@@ -23,6 +24,7 @@ export default function App() {
   const [dataCleaned, setDataCleaned] = useState(false);
   const [joinedData, setJoinedData] = useState(null);
   const { signOut } = useAuthenticator((context) => [context.user]);
+  const history = useHistory(); // Use useHistory for navigation
 
   useEffect(() => {
     fetchUserProfile();
@@ -43,8 +45,9 @@ export default function App() {
       const data = parseCSV(fileContent);
       console.log("Parsed CSV Data: ", data);
       setFileData(data);
-      // Update filesUploaded state if both files are uploaded
-      setFilesUploaded(file1Data && file2Data);
+      if (file1Data && file2Data) {
+        setFilesUploaded(true);
+      }
     };
 
     reader.readAsText(file);
@@ -107,13 +110,19 @@ export default function App() {
 
       <Divider margin="2rem 0" />
 
-      <Button onClick={handleCleanData} isDisabled={!filesUploaded}>
+      <Button 
+        onClick={handleCleanData} 
+        disabled={!file1Data || !file2Data}  // Enable when both files are uploaded
+      >
         Clean Data
       </Button>
 
       {dataCleaned && <Text color="black">Data Cleaned</Text>}
 
-      <Button onClick={handleJoinData} isDisabled={!dataCleaned}>
+      <Button 
+        onClick={handleJoinData} 
+        disabled={!dataCleaned}  // Enable when data is cleaned
+      >
         Join Data
       </Button>
 
@@ -122,7 +131,7 @@ export default function App() {
           <Text color="black">Data successfully cleaned and joined</Text>
           <View>
             {joinedData.map((row, index) => (
-              <Text key={index} color="black">{JSON.stringify(row)}</Text>
+              <Text key={index}>{JSON.stringify(row)}</Text>
             ))}
           </View>
         </>
@@ -130,7 +139,7 @@ export default function App() {
 
       <Divider margin="2rem 0" />
 
-      <Button onClick={() => console.log('Redirecting to next page...')}>
+      <Button onClick={() => history.push('/next')}>
         Next
       </Button>
     </Flex>

@@ -35,31 +35,26 @@ export default function App() {
     console.log("Fetched Profiles: ", profiles);
     setUserProfiles(profiles);
   }
-
   function handleFileChange(event, setFileData, fileIndex) {
     const file = event.target.files[0];
     const reader = new FileReader();
 
     reader.onload = (e) => {
         const fileContent = e.target.result;
-        console.log('test');
+        console.log(`Raw CSV Content for File ${fileIndex}:`, fileContent);
+
         const data = parseCSV(fileContent);
         console.log(`Parsed CSV Data ${fileIndex}: `, data);  // Log the parsed data
+        
+        setFileData(data);
 
-        setFileData((prevData) => {
-            console.log(`Previous Data ${fileIndex}:`, prevData);
-            const updatedData = data;
-            console.log(`Updated Data ${fileIndex}:`, updatedData);
+        // Log to verify both files have data
+        console.log("File1Data after setting:", fileIndex === 1 ? data : file1Data);
+        console.log("File2Data after setting:", fileIndex === 2 ? data : file2Data);
 
-            // Now check if both files have data after updating the state
-            if (fileIndex === 1 && updatedData && file2Data) {
-                setFilesUploaded(true);
-            } else if (fileIndex === 2 && updatedData && file1Data) {
-                setFilesUploaded(true);
-            }
-
-            return updatedData;
-        });
+        if (file1Data && file2Data) {
+            setFilesUploaded(true);
+        }
     };
 
     reader.readAsText(file);

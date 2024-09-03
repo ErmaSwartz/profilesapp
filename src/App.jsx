@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Heading, Flex, Divider, Text, View } from "@aws-amplify/ui-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
-import { useNavigate } from 'react-router-dom'; // Correct import
+import { useNavigate } from 'react-router-dom';
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
@@ -35,30 +35,38 @@ export default function App() {
     console.log("Fetched Profiles: ", profiles);
     setUserProfiles(profiles);
   }
+
   function handleFileChange(event, setFileData, fileIndex) {
     const file = event.target.files[0];
+    if (!file) {
+        console.error(`No file found for input ${fileIndex}`);
+        return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
         const fileContent = e.target.result;
         console.log(`Raw CSV Content for File ${fileIndex}:`, fileContent);
-
-        const data = parseCSV(fileContent);
-        console.log(`Parsed CSV Data ${fileIndex}: `, data);  // Log the parsed data
         
-        setFileData(data);
-
-        // Log to verify both files have data
-        console.log("File1Data after setting:", fileIndex === 1 ? data : file1Data);
-        console.log("File2Data after setting:", fileIndex === 2 ? data : file2Data);
-
-        if (file1Data && file2Data) {
-            setFilesUploaded(true);
+        if (!fileContent) {
+            console.error(`Failed to read file ${fileIndex}. The content is empty.`);
+        } else {
+            const data = parseCSV(fileContent);
+            console.log(`Parsed CSV Data ${fileIndex}: `, data);
+            setFileData(data);
         }
     };
 
     reader.readAsText(file);
-}
+  }
+
+  useEffect(() => {
+    if (file1Data && file2Data) {
+        setFilesUploaded(true);
+        console.log("Both files are uploaded");
+    }
+  }, [file1Data, file2Data]);
 
   function handleCleanData() {
     if (file1Data && file2Data) {

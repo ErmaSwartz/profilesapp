@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button, Heading, Flex, Divider, Text, View } from "@aws-amplify/ui-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
-import { useNavigate } from 'react-router-dom';
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
@@ -23,8 +22,8 @@ export default function App() {
   const [filesUploaded, setFilesUploaded] = useState(false);
   const [dataCleaned, setDataCleaned] = useState(false);
   const [joinedData, setJoinedData] = useState([]);
+  const [finalData, setFinalData] = useState(null); // To store final cleaned and joined data
   const { signOut } = useAuthenticator((context) => [context.user]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
@@ -82,9 +81,14 @@ export default function App() {
 
   function handleJoinData() {
     if (file1Data && file2Data && dataCleaned) {
-      const joinedData = joinData(file1Data, file2Data);
-      console.log("Cleaned and Joined Data: ", joinedData);
-      setJoinedData(joinedData.slice(0, 10)); // Display top 10 rows
+      const joined = joinData(file1Data, file2Data);
+      console.log("Cleaned and Joined Data: ", joined);
+      setJoinedData(joined);
+      setFinalData({
+        cleanedFile1: file1Data,
+        cleanedFile2: file2Data,
+        joinedData: joined,
+      });
     }
   }
 
@@ -145,7 +149,7 @@ export default function App() {
         <>
           <Text color="black">Data successfully cleaned and joined</Text>
           <View>
-            {joinedData.map((row, index) => (
+            {joinedData.slice(0, 10).map((row, index) => (
               <Text key={index} color="black">{JSON.stringify(row)}</Text>
             ))}
           </View>
@@ -154,9 +158,7 @@ export default function App() {
 
       <Divider margin="2rem 0" />
 
-      <Button onClick={() => navigate('/next')}>
-        Next
-      </Button>
+      {/* The Next button is removed */}
     </Flex>
   );
 }

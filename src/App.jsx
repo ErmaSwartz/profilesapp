@@ -22,7 +22,7 @@ export default function App() {
   const [file2Data, setFile2Data] = useState(null);
   const [filesUploaded, setFilesUploaded] = useState(false);
   const [dataCleaned, setDataCleaned] = useState(false);
-  const [joinedData, setJoinedData] = useState(null);
+  const [joinedData, setJoinedData] = useState([]);
   const { signOut } = useAuthenticator((context) => [context.user]);
   const navigate = useNavigate();
 
@@ -36,22 +36,34 @@ export default function App() {
     setUserProfiles(profiles);
   }
 
-  function handleFileChange(event, setFileData) {
+  function handleFileChange(event, setFileData, fileIndex) {
     const file = event.target.files[0];
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      const fileContent = e.target.result;
-      const data = parseCSV(fileContent);
-      console.log("Parsed CSV Data: ", data);
-      setFileData(data);
-      if (file1Data && file2Data) {
-        setFilesUploaded(true);
-      }
+        const fileContent = e.target.result;
+        console.log('test');
+        const data = parseCSV(fileContent);
+        console.log(`Parsed CSV Data ${fileIndex}: `, data);  // Log the parsed data
+
+        setFileData((prevData) => {
+            console.log(`Previous Data ${fileIndex}:`, prevData);
+            const updatedData = data;
+            console.log(`Updated Data ${fileIndex}:`, updatedData);
+
+            // Now check if both files have data after updating the state
+            if (fileIndex === 1 && updatedData && file2Data) {
+                setFilesUploaded(true);
+            } else if (fileIndex === 2 && updatedData && file1Data) {
+                setFilesUploaded(true);
+            }
+
+            return updatedData;
+        });
     };
 
     reader.readAsText(file);
-  }
+}
 
   function handleCleanData() {
     if (file1Data && file2Data) {
@@ -97,12 +109,12 @@ export default function App() {
         <input
           type="file"
           accept=".csv"
-          onChange={(e) => handleFileChange(e, setFile1Data)}
+          onChange={(e) => handleFileChange(e, setFile1Data, 1)}
         />
         <input
           type="file"
           accept=".csv"
-          onChange={(e) => handleFileChange(e, setFile2Data)}
+          onChange={(e) => handleFileChange(e, setFile2Data, 2)}
         />
       </Flex>
 
@@ -126,12 +138,12 @@ export default function App() {
         Join Data
       </Button>
 
-      {joinedData && (
+      {joinedData.length > 0 && (
         <>
           <Text color="black">Data successfully cleaned and joined</Text>
           <View>
             {joinedData.map((row, index) => (
-              <Text key={index}>{JSON.stringify(row)}</Text>
+              <Text key={index} color="black">{JSON.stringify(row)}</Text>
             ))}
           </View>
         </>
@@ -139,7 +151,7 @@ export default function App() {
 
       <Divider margin="2rem 0" />
 
-      <Button onClick={() => history.push('/next')}>
+      <Button onClick={() => navigate('/next')}>
         Next
       </Button>
     </Flex>

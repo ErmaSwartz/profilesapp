@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Heading, Flex, Divider, Text, View } from "@aws-amplify/ui-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
-import { useHistory } from 'react-router-dom'; // Import useHistory
+import { useNavigate } from 'react-router-dom'; // Correct import
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
@@ -24,7 +24,7 @@ export default function App() {
   const [dataCleaned, setDataCleaned] = useState(false);
   const [joinedData, setJoinedData] = useState(null);
   const { signOut } = useAuthenticator((context) => [context.user]);
-  const history = useHistory(); // Use useHistory for navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();

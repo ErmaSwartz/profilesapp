@@ -1,9 +1,9 @@
 import React from "react";
 import { Button, Heading, Flex } from "@aws-amplify/ui-react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Correct import
 
 function NextPage() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <Flex
@@ -18,7 +18,7 @@ function NextPage() {
       boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
     >
       <Heading level={1} color="black">Next Page</Heading>
-      <Button onClick={() => history.push("/")}>Go Back</Button>
+      <Button onClick={() => navigate("/")}>Go Back</Button>
       {/* Add more content here for the next page */}
     </Flex>
   );

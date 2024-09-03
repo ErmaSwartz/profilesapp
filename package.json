@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "serve": "vite preview",
+    "start": "npm run dev"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.2.0",

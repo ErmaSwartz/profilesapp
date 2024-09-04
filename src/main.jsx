@@ -11,7 +11,6 @@ function Main() {
       <Router>
         <Routes>
           <Route exact path="/" element={<App />} />
-          <Route path="/next" element={<NextPage />} />
         </Routes>
       </Router>
     </Authenticator>

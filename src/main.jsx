@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Authenticator } from "@aws-amplify/ui-react";
 import App from './App';
-import NextPage from './NextPage'; // Import the new page component
+import NextPage from "./NextPage";
 
 function Main() {
   return (

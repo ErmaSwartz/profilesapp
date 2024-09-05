@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Authenticator } from "@aws-amplify/ui-react";
 import App from './App';
-import NextPage from "./NextPage";
 
 function Main() {
   return (
@@ -11,7 +10,6 @@ function Main() {
       <Router>
         <Routes>
           <Route exact path="/" element={<App />} />
-
         </Routes>
       </Router>
     </Authenticator>

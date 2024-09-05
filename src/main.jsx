@@ -11,6 +11,7 @@ function Main() {
       <Router>
         <Routes>
           <Route exact path="/" element={<App />} />
+
         </Routes>
       </Router>
     </Authenticator>

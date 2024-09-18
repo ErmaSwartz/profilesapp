@@ -9,6 +9,7 @@ import { parseCSV } from "./utils/csvutils";
 import { cleanData } from "./utils/cleanData";
 import { joinData } from "./utils/joinData";
 import Papa from 'papaparse';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 Amplify.configure(outputs);
 
@@ -30,6 +31,7 @@ export default function App() {
   const { signOut } = useAuthenticator((context) => [context.user]);
   const [totalDonations, setTotalDonations] = useState(0);
   const [totalNumberOfDonations, setTotalNumberOfDonations] = useState(0);
+  const [averageTimeToFirstDonation, setAverageTimeToFirstDonation] = useState(0); // New state for average time
 
   useEffect(() => {
     fetchUserProfile();
@@ -110,7 +112,7 @@ export default function App() {
       complete: (result) => {
         console.log("Parsed Donation Data:", result.data);
         setFile3Data(result.data);
-        setDonationFileUploaded(true);  // Set donation file uploaded to true
+        setDonationFileUploaded(true);
       }
     });
   }
@@ -121,7 +123,6 @@ export default function App() {
       return;
     }
 
-    console.log("Joined Data:", joinedData);  // Ensure joined data exists
     if (!joinedData || joinedData.length === 0) {
       console.log("No joined data available");
       return;
@@ -129,8 +130,9 @@ export default function App() {
 
     let totalAmountDonated = 0;
     let totalDonationsCount = 0;
+    let totalDaysToFirstDonation = 0;
+    let totalUsersWithDonations = 0;
 
-    // Group donations by email and sum their total donations
     const emailMap = new Map();
 
     joinedData.forEach((row) => {
@@ -162,11 +164,16 @@ export default function App() {
 
         totalAmountDonated += totalAmount;
         totalDonationsCount += numberOfDonations;
+        totalDaysToFirstDonation += timeDiff;
+        totalUsersWithDonations += 1;
       }
     });
 
     setTotalDonations(totalAmountDonated);
     setTotalNumberOfDonations(totalDonationsCount);
+
+    const avgTime = totalUsersWithDonations > 0 ? (totalDaysToFirstDonation / totalUsersWithDonations) : 0;
+    setAverageTimeToFirstDonation(avgTime);
 
     const results = Array.from(emailMap.values());
     setDonationResults(results);
@@ -186,6 +193,13 @@ export default function App() {
       boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
     >
       <Heading level={1} color="black">Mandate Media Acquisition</Heading>
+
+      {averageTimeToFirstDonation > 0 && (
+        <Text fontSize="large" color="black">
+          Average Time to First Donation: {averageTimeToFirstDonation.toFixed(2)} days
+        </Text>
+      )}
+
       <Text fontSize="large" color="black">
         Upload NGP and ActBlue Files Here
       </Text>
@@ -232,71 +246,101 @@ export default function App() {
             {joinedData.slice(0, 10).map((row, index) => (
               <Text key={index} color="black">{JSON.stringify(row)}</Text>
             ))}
-          </View>
+                   </View>
 
-          <Divider margin="2rem 0" />
+<Divider margin="2rem 0" />
 
-          {/* Single input for the third file (Donation file) */}
-          <Text color="black">Upload Donation Data</Text>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleDonationFileChange}  // Link to the donation file handler
-          />
-        </>
-      )}
+{/* Single input for the third file (Donation file) */}
+<Text color="black">Upload Donation Data</Text>
+<input
+  type="file"
+  accept=".csv"
+  onChange={handleDonationFileChange}  // Link to the donation file handler
+/>
+</>
+)}
 
-      {donationFileUploaded && (
-        <>
-          <Button onClick={analyzeDonations}>
-            Analyze Donations
-          </Button>
-        </>
-      )}
+{donationFileUploaded && (
+<>
+<Button onClick={analyzeDonations}>
+  Analyze Donations
+</Button>
+</>
+)}
 
-      <Divider margin="2rem 0" />
+<Divider margin="2rem 0" />
 
-      {/* Total Donations and Number of Donations */}
-      {totalDonations > 0 && (
-        <View>
-          <Text fontWeight="bold">Total Amount Donated: ${totalDonations.toFixed(2)}</Text>
-          <Text fontWeight="bold">Total Number of Donations: {totalNumberOfDonations}</Text>
-        </View>
-      )}
+{/* Total Donations and Number of Donations */}
+{totalDonations > 0 && (
+<View>
+<Text fontWeight="bold">Total Amount Donated: ${totalDonations.toFixed(2)}</Text>
+<Text fontWeight="bold">Total Number of Donations: {totalNumberOfDonations}</Text>
+</View>
+)}
 
-      {donationResults.length > 0 && (
-        <View>
-          <h3>Donation Analysis Results</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
-                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Activist Code</th>
-                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Donor Email</th>
-                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Total Amount Donated</th>
-                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Number of Donations</th>
-                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Time Between Addition and First Donation (days)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {donationResults.map((result, index) => (
-                <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>{result['Activist Code'] || "N/A"}</td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>{result['Donor Email'] || "N/A"}</td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    {isNaN(result['Total Amount Donated']) ? "N/A" : result['Total Amount Donated']}
-                  </td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    {isNaN(result['Number of Donations']) ? "N/A" : result['Number of Donations']}
-                  </td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    {isNaN(result['Time Between Addition and First Donation (days)']) ? "N/A" : result['Time Between Addition and First Donation (days)']}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </View>
-      )}
-    </Flex>
-  );
+{donationResults.length > 0 && (
+<>
+<View>
+  <h3>Donation Analysis Results</h3>
+  <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+    <thead>
+      <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
+        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Activist Code</th>
+        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Donor Email</th>
+        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Total Amount Donated</th>
+        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Number of Donations</th>
+        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Time Between Addition and First Donation (days)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {donationResults.map((result, index) => (
+        <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
+          <td style={{ padding: '10px', border: '1px solid #ddd' }}>{result['Activist Code'] || "N/A"}</td>
+          <td style={{ padding: '10px', border: '1px solid #ddd' }}>{result['Donor Email'] || "N/A"}</td>
+          <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+            {isNaN(result['Total Amount Donated']) ? "N/A" : result['Total Amount Donated']}
+          </td>
+          <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+            {isNaN(result['Number of Donations']) ? "N/A" : result['Number of Donations']}
+          </td>
+          <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+            {isNaN(result['Time Between Addition and First Donation (days)']) ? "N/A" : result['Time Between Addition and First Donation (days)']}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</View>
+
+{/* Bar Chart for Total Donations */}
+<Text fontSize="large" color="black">Total Donations per User</Text>
+<ResponsiveContainer width="100%" height={300}>
+  <BarChart data={donationResults}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="Donor Email" />
+    <YAxis />
+    <Tooltip />
+    <Legend />
+    <Bar dataKey="Total Amount Donated" fill="#8884d8" />
+  </BarChart>
+</ResponsiveContainer>
+
+<Divider margin="2rem 0" />
+
+{/* Line Chart for Time Between Addition and First Donation */}
+<Text fontSize="large" color="black">Time Between Addition and First Donation</Text>
+<ResponsiveContainer width="100%" height={300}>
+  <LineChart data={donationResults}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="Donor Email" />
+    <YAxis />
+    <Tooltip />
+    <Legend />
+    <Line type="monotone" dataKey="Time Between Addition and First Donation (days)" stroke="#82ca9d" />
+  </LineChart>
+</ResponsiveContainer>
+</>
+)}
+</Flex>
+);
 }

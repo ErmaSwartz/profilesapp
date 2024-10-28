@@ -1,0 +1,22 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd profilesapp            # Change directory to where your amplify folder is located (adjust if needed)
+        - npm install               # Install dependencies
+    build:
+      commands:
+        - amplify push --yes        # Deploy backend resources using Amplify CLI
+  artifacts:
+    baseDirectory: /                # The base directory for your build artifacts
+    files:
+      - '**/*'                      # Include all files in the build
+  cache:
+    paths:
+      - node_modules/**/*           # Cache node_modules to speed up future builds
+
+environment:
+  variables:
+    AWS_BRANCH: "main"              # Replace with the branch you’re deploying
+    AWS_APP_ID: "d1sn8ylj150qz2"    # Replace with your app ID

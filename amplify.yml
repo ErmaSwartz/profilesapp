@@ -1,9 +1,8 @@
-version: 1
+    version: 1
 frontend:
   phases:
     preBuild:
       commands:
-        - cd profilesapp            # Change directory to where your amplify folder is located (adjust if needed)
         - npm install               # Install dependencies
     build:
       commands:

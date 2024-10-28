@@ -1,0 +1,12 @@
+{
+  "AppSyncApiName": "profilesapp",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authUserAuthentication",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2024-10-19T22:45:38.582Z"
+}

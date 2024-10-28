@@ -42,7 +42,7 @@
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-6ca0c-deployment/amplify-cfn-templates/auth/UserAuthentication-cloudformation-template.json",
         "logicalId": "authUserAuthentication"
       },
-      "lastPushTimeStamp": "2024-10-19T17:10:59.123Z",
+      "lastPushTimeStamp": "2024-10-28T19:55:53.486Z",
       "output": {
         "CreatedSNSRole": "arn:aws:iam::904233106232:role/sns452151616ca0c-dev",
         "UserPoolId": "us-east-1_x2OhbITcJ",
@@ -54,6 +54,40 @@
         "UserPoolName": "Staff"
       },
       "lastPushDirHash": "gRVlpho/ktZNx53m6HCbAOwkCsc="
+    }
+  },
+  "api": {
+    "profilesapp": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "UserAuthentication",
+          "attributes": [
+            "UserPoolId"
+          ]
+        }
+      ],
+      "output": {
+        "authConfig": {
+          "defaultAuthentication": {
+            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "userPoolConfig": {
+              "userPoolId": "authUserAuthentication"
+            }
+          },
+          "additionalAuthenticationProviders": []
+        },
+        "GraphQLAPIIdOutput": "xhfpmcggqfd75cts73oqyv4ocq",
+        "GraphQLAPIEndpointOutput": "https://rdzqetbunnetzajskgnqhejcoa.appsync-api.us-east-1.amazonaws.com/graphql"
+      },
+      "lastPushTimeStamp": "2024-10-28T19:55:54.102Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-6ca0c-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+        "logicalId": "apiprofilesapp"
+      },
+      "lastPushDirHash": "trcUvD25mf7rpRqhyLQtv8ciMjo="
     }
   }
 }

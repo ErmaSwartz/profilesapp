@@ -1,0 +1,86 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-profilesapp-dev-6ca0c-authRole",
+      "UnauthRoleArn": "arn:aws:iam::904233106232:role/amplify-profilesapp-dev-6ca0c-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::904233106232:role/amplify-profilesapp-dev-6ca0c-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-profilesapp-dev-6ca0c-deployment",
+      "UnauthRoleName": "amplify-profilesapp-dev-6ca0c-unauthRole",
+      "StackName": "amplify-profilesapp-dev-6ca0c",
+      "StackId": "arn:aws:cloudformation:us-east-1:904233106232:stack/amplify-profilesapp-dev-6ca0c/ded0b520-8e37-11ef-822e-121310bb3ccb",
+      "AmplifyAppId": "d1sn8ylj150qz2"
+    }
+  },
+  "auth": {
+    "UserAuthentication": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OPTIONAL",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-6ca0c-deployment/amplify-cfn-templates/auth/UserAuthentication-cloudformation-template.json",
+        "logicalId": "authUserAuthentication"
+      },
+      "lastPushTimeStamp": "2024-10-19T22:50:10.996Z",
+      "output": {
+        "CreatedSNSRole": "arn:aws:iam::904233106232:role/sns452151616ca0c-dev",
+        "UserPoolId": "us-east-1_x2OhbITcJ",
+        "AppClientIDWeb": "51626d3k8cggpdktngq2kaa30t",
+        "AppClientID": "36mdau2hbsblf57g9tlsjetln9",
+        "IdentityPoolId": "us-east-1:1abc30a5-4c38-4fc7-8a86-d8405b898d09",
+        "UserPoolArn": "arn:aws:cognito-idp:us-east-1:904233106232:userpool/us-east-1_x2OhbITcJ",
+        "IdentityPoolName": "Mandate_ID__dev",
+        "UserPoolName": "Staff"
+      },
+      "lastPushDirHash": "gRVlpho/ktZNx53m6HCbAOwkCsc="
+    }
+  },
+  "api": {
+    "profilesapp": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "UserAuthentication",
+          "attributes": [
+            "UserPoolId"
+          ]
+        }
+      ],
+      "output": {
+        "authConfig": {
+          "defaultAuthentication": {
+            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "userPoolConfig": {
+              "userPoolId": "authUserAuthentication"
+            }
+          },
+          "additionalAuthenticationProviders": []
+        }
+      },
+      "lastPushTimeStamp": "2024-10-19T22:45:38.589Z"
+    }
+  }
+}

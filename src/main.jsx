@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Authenticator } from "@aws-amplify/ui-react";
 import App from './App';
@@ -16,4 +16,7 @@ function Main() {
   );
 }
 
-ReactDOM.render(<Main />, document.getElementById('root'));
+// Use createRoot instead of ReactDOM.render
+const rootElement = document.getElementById('root');
+const root = createRoot(rootElement);
+root.render(<Main />);
